@@ -1,5 +1,6 @@
 // URL de tu Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbw-t73vVxhNO-lh_a4qH1loGTT1rYsTsn_fBhwdSDTTPi9lWd0cMQBKG-rV7YUfitY/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzNTDTJpIF4YFdC5vvCRA8dCVcBRFznDf9VvTnobEpFoM1CvteVoEfl-iaJhK1_G2g2/exec';
+
 
 let productoSeleccionado = null;
 
