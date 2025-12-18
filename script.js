@@ -1,27 +1,25 @@
-// IMPORTANTE: Cambia esta URL por tu Apps Script
-const API_URL = 'https://script.google.com/macros/s/AKfycbwuR6_u4dMFlgyRp6fiworpJCtRjBCdTos2zVfbeRrdmu7dOsaYwUwcvFebogJMbWM/exec?format=json';
-
-
+// URL de tu Apps Script
+const API_URL = 'https://script.google.com/macros/s/AKfycbwuR6_u4dMFlgyRp6fiworpJCtRjBCdTos2zVfbeRrdmu7dOsaYwUwcvFebogJMbWM/exec';
 
 let productoSeleccionado = null;
 
 window.addEventListener('load', cargarProductos);
 
-async function cargarProductos() {
-    try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
+// Usar JSONP en lugar de fetch para evitar CORS
+function cargarProductos() {
+    const script = document.createElement('script');
+    script.src = API_URL + '?format=json&callback=procesarProductos';
+    document.body.appendChild(script);
+}
 
-        document.getElementById('loading').style.display = 'none';
+// Callback que recibe los datos
+function procesarProductos(data) {
+    document.getElementById('loading').style.display = 'none';
 
-        if (data.productos && data.productos.length > 0) {
-            mostrarProductos(data.productos);
-        } else {
-            document.getElementById('productos').innerHTML = '<div class="loading">😔 No hay productos disponibles</div>';
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('loading').innerHTML = '❌ Error al cargar productos';
+    if (data.productos && data.productos.length > 0) {
+        mostrarProductos(data.productos);
+    } else {
+        document.getElementById('productos').innerHTML = '<div class="loading">😔 No hay productos disponibles</div>';
     }
 }
 
@@ -40,9 +38,9 @@ function mostrarProductos(productos) {
                  onerror="this.src='https://via.placeholder.com/300x250?text=PlayStation'">
             <div class="producto-info">
                 <div class="producto-nombre">${producto.nombre}</div>
-                <div class="producto-precio">$${producto.precio}</div>
+                <div class="producto-precio">$${Number(producto.precio).toLocaleString('es-CO')}</div>
                 <div class="producto-stock">📦 ${producto.cantidad} disponibles</div>
-                <button class="btn-comprar" onclick='abrirModal(${JSON.stringify(producto)})'>
+                <button class="btn-comprar" onclick='abrirModal(${JSON.stringify(producto).replace(/'/g, "&apos;")})'>
                     🛒 Comprar Ahora
                 </button>
             </div>
@@ -57,7 +55,7 @@ function abrirModal(producto) {
     
     document.getElementById('modal-producto').innerHTML = `
         <p><strong>Producto:</strong> ${producto.nombre}</p>
-        <p><strong>Precio:</strong> $${producto.precio}</p>
+        <p><strong>Precio:</strong> $${Number(producto.precio).toLocaleString('es-CO')}</p>
     `;
     
     document.getElementById('modal').style.display = 'block';
@@ -70,7 +68,7 @@ function cerrarModal() {
     document.getElementById('input-ciudad').value = '';
 }
 
-async function confirmarPedido() {
+function confirmarPedido() {
     const nombre = document.getElementById('input-nombre').value.trim();
     const telefono = document.getElementById('input-telefono').value.trim();
     const ciudad = document.getElementById('input-ciudad').value.trim();
@@ -80,34 +78,50 @@ async function confirmarPedido() {
         return;
     }
 
-    try {
-        const response = await fetch(API_URL.replace('?format=json', ''), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'registrarPedidoBot',
-                cliente: nombre,
-                telefono: telefono,
-                ciudad: ciudad,
-                nombreProducto: productoSeleccionado.nombre,
-                producto: `1x ${productoSeleccionado.nombre}`,
-                precio: productoSeleccionado.precio
-            })
-        });
+    // Crear formulario oculto para enviar POST
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = API_URL;
+    form.target = 'hidden_iframe';
+    
+    const campos = {
+        action: 'registrarPedidoBot',
+        cliente: nombre,
+        telefono: telefono,
+        ciudad: ciudad,
+        nombreProducto: productoSeleccionado.nombre,
+        producto: `1x ${productoSeleccionado.nombre}`,
+        precio: productoSeleccionado.precio
+    };
 
-        const result = await response.json();
-
-        if (result.status === 'success') {
-            alert('✅ ¡Pedido registrado! Te contactaremos pronto.');
-            cerrarModal();
-            cargarProductos();
-        } else {
-            alert('❌ Error al registrar el pedido. Intenta de nuevo.');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('❌ Error de conexión. Intenta de nuevo.');
+    for (let key in campos) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = campos[key];
+        form.appendChild(input);
     }
+
+    document.body.appendChild(form);
+
+    // Crear iframe oculto
+    if (!document.getElementById('hidden_iframe')) {
+        const iframe = document.createElement('iframe');
+        iframe.name = 'hidden_iframe';
+        iframe.id = 'hidden_iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+    }
+
+    form.submit();
+    
+    alert('✅ ¡Pedido registrado! Te contactaremos pronto.');
+    cerrarModal();
+    
+    setTimeout(() => {
+        cargarProductos();
+        document.body.removeChild(form);
+    }, 1000);
 }
 
 window.onclick = function(event) {
