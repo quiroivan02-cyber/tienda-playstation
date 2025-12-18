@@ -1,7 +1,6 @@
 // URL de tu Apps Script
 const API_URL = 'https://script.google.com/macros/s/AKfycbzNTDTJpIF4YFdC5vvCRA8dCVcBRFznDf9VvTnobEpFoM1CvteVoEfl-iaJhK1_G2g2/exec';
 
-
 let productoSeleccionado = null;
 
 window.addEventListener('load', cargarProductos);
@@ -9,7 +8,7 @@ window.addEventListener('load', cargarProductos);
 // Usar JSONP en lugar de fetch para evitar CORS
 function cargarProductos() {
     const script = document.createElement('script');
-    script.src = API_URL + '?format=json&callback=procesarProductos';
+    script.src = API_URL + '?callback=procesarProductos';
     document.body.appendChild(script);
 }
 
