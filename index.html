@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Tienda PlayStation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Tienda PlayStation</h1>
+            <p>Las mejores consolas al mejor precio</p>
+        </header>
+
+        <div id="loading" class="loading">
+            ⏳ Cargando productos...
+        </div>
+
+        <div id="productos" class="productos-grid"></div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2>🛒 Confirmar Pedido</h2>
+            <div id="modal-producto"></div>
+            
+            <div class="form-group">
+                <label>👤 Tu nombre:</label>
+                <input type="text" id="input-nombre" placeholder="Ej: Juan Pérez" required>
+            </div>
+
+            <div class="form-group">
+                <label>📱 Tu teléfono:</label>
+                <input type="tel" id="input-telefono" placeholder="Ej: 3001234567" required>
+            </div>
+
+            <div class="form-group">
+                <label>🏠 Tu ciudad:</label>
+                <input type="text" id="input-ciudad" placeholder="Ej: Bogotá" required>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-confirmar" onclick="confirmarPedido()">✅ Confirmar</button>
+                <button class="btn btn-cancelar" onclick="cerrarModal()">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
